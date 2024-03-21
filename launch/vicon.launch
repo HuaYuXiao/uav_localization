@@ -5,12 +5,15 @@
   <!-- IP and port on Vicon Windows PC -->
   <arg name="datastream_hostport" default="192.168.28.58:801"/>
   <!-- Fixed vicon world frame -->
-  <arg name="vicon_world_frame" default="/vicon/world"/>
+  <arg name="vicon_world_frame" default="/world"/>
 
-<node pkg="uav_localization" type="uav_localization" name="vicon" output="screen" >
-    <param name="stream_mode" value="ServerPush"/>
-<param name="datastream_hostport" value="$(arg datastream_hostport)"/>
-    <param name="tf_ref_frame_id" value="$(arg vicon_world_frame)"/>
-</node>
+    <node pkg="uav_localization" type="uav_localization" name="vicon" output="screen" >
+        <param name="stream_mode" value="ServerPush"/>
+    <param name="datastream_hostport" value="$(arg datastream_hostport)"/>
+        <param name="tf_ref_frame_id" value="$(arg vicon_world_frame)"/>
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find uav_localization)/cfg/rviz.rviz">
+    </node>
 
 </launch>
