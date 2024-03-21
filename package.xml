@@ -1,6 +1,6 @@
 <package>
   <name>uav_localization</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>
 
      This is a driver providing data from VICON motion capture systems. It is based on the vicon_mocap package from the starmac stacks. 
