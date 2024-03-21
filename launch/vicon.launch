@@ -8,7 +8,7 @@
   <arg name="vicon_world_frame" default="/world"/>
 
     <node pkg="uav_localization" type="uav_localization" name="vicon" output="screen" >
-        <param name="stream_mode" value="ServerPush"/>
+        <param name="stream_mode" value="ClientPull"/>
     <param name="datastream_hostport" value="$(arg datastream_hostport)"/>
         <param name="tf_ref_frame_id" value="$(arg vicon_world_frame)"/>
     </node>
