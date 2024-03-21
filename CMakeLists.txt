@@ -26,7 +26,11 @@ add_service_files(FILES
     viconGrabPose.srv
 )
 
-generate_messages(DEPENDENCIES geometry_msgs)
+generate_messages(DEPENDENCIES
+        std_msgs
+        geometry_msgs
+        uav_localization
+)
 
 # Generate dynamic parameters
 generate_dynamic_reconfigure_options(
