@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(vicon_bridge)
+project(uav_localization)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -33,11 +33,11 @@ generate_dynamic_reconfigure_options(
   cfg/tf_distort.cfg
 )
 
-catkin_package(CATKIN_DEPENDS 
+catkin_package(CATKIN_DEPENDS
     dynamic_reconfigure
     geometry_msgs
-    message_runtime 
-    roscpp 
+    message_runtime
+    roscpp
 )
 
 include_directories(
@@ -52,14 +52,14 @@ file(GLOB_RECURSE vicon_sdk_files "${CMAKE_CURRENT_SOURCE_DIR}/vicon_sdk/**/**.c
 add_library(vicon_sdk ${vicon_sdk_files})
 target_link_libraries(vicon_sdk PUBLIC ${Boost_LIBRARIES})
 
-add_executable(vicon_bridge
+add_executable(uav_localization
     src/vicon_bridge.cpp
 )
-target_link_libraries(vicon_bridge
+target_link_libraries(uav_localization
     vicon_sdk
     ${catkin_LIBRARIES}
 )
-add_dependencies(vicon_bridge ${PROJECT_NAME}_gencpp)
+add_dependencies(uav_localization ${PROJECT_NAME}_gencpp)
 
 add_executable(calibrate src/calibrate_segment.cpp)
 target_link_libraries(calibrate ${catkin_LIBRARIES})
@@ -73,7 +73,7 @@ add_executable(testclient src/ViconDataStreamSDK_CPPTest.cpp)
 target_link_libraries(testclient vicon_sdk)
 
 # Install
-install(TARGETS vicon_sdk vicon_bridge calibrate tf_distort testclient
+install(TARGETS vicon_sdk uav_localization calibrate tf_distort testclient
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
