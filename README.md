@@ -7,7 +7,7 @@ Author: Markus Achtelik <markus.achtelik@mavt.ethz.ch>
 QUICK START
 
 ```bash
-roslaunch vicon_bridge vicon.launch
+roslaunch uav_localization vicon.launch
 ```
 
 You may need to set the "datastream_hostport" parameter to your vicon computer's ip/hostname
@@ -27,7 +27,7 @@ Place the vehicle at the vicon origin that you set during vicon calibration, and
 (z offset) of your desired origin from the floor. Then run 
 
 ```bash
-rosrun vicon_bridge calibrate <subject name> <segment name> <z offset>
+rosrun uav_localization calibrate <subject name> <segment name> <z offset>
 ```
 
 Poses are now grabbed, averaged and the vehicle is placed in the vicon's origin. The calibration parameters are stored on the parameter server as
