@@ -49,17 +49,13 @@
 
 using namespace ViconDataStreamSDK::CPP;
 
-namespace
-{
-  std::string Adapt( const bool i_Value )
-  {
+namespace{
+  std::string Adapt( const bool i_Value ){
     return i_Value ? "True" : "False";
   }
 
-  std::string Adapt( const TimecodeStandard::Enum i_Standard )
-  {
-    switch( i_Standard )
-    {
+  std::string Adapt( const TimecodeStandard::Enum i_Standard ){
+    switch( i_Standard ){
       default:
     case TimecodeStandard::None:
         return "0";
@@ -78,10 +74,8 @@ namespace
     }
   }
 
-  std::string Adapt( const Direction::Enum i_Direction )
-  {
-    switch( i_Direction )
-    {
+  std::string Adapt( const Direction::Enum i_Direction ){
+    switch( i_Direction ){
       case Direction::Forward:
         return "Forward";
       case Direction::Backward:
@@ -99,10 +93,8 @@ namespace
     }
   }
 
-  std::string Adapt( const DeviceType::Enum i_DeviceType )
-  {
-    switch( i_DeviceType )
-    {
+  std::string Adapt( const DeviceType::Enum i_DeviceType ){
+    switch( i_DeviceType ){
       case DeviceType::ForcePlate:
         return "ForcePlate";
       case DeviceType::Unknown:
@@ -111,10 +103,8 @@ namespace
     }
   }
 
-  std::string Adapt( const Unit::Enum i_Unit )
-  {
-    switch( i_Unit )
-    {
+  std::string Adapt( const Unit::Enum i_Unit ){
+    switch( i_Unit ){
       case Unit::Meter:
         return "Meter";
       case Unit::Volt:
@@ -204,8 +194,7 @@ namespace
   }
 #endif
 
-  class NullBuffer : public std::streambuf
-  {
+  class NullBuffer : public std::streambuf{
   public:
     int overflow( int c ) { return c; }
   };
@@ -215,23 +204,19 @@ namespace
 
 }
 
-int main( int argc, char* argv[] )
-{
+int main( int argc, char* argv[] ){
   // Program options
 
   std::vector< std::string > Hosts;
   int Arg = 1;
-  for (Arg; Arg < argc; ++Arg)
-  {
-    if (strncmp(argv[Arg], "--", 2) == 0)
-    {
+  for (Arg; Arg < argc; ++Arg){
+    if (strncmp(argv[Arg], "--", 2) == 0){
       break;
     }
     Hosts.push_back(argv[Arg]);
   }
 
-  if (Hosts.empty())
-  {
+  if (Hosts.empty()){
     Hosts.push_back("localhost:801");
   }
 
@@ -265,11 +250,9 @@ int main( int argc, char* argv[] )
   std::vector< std::string > FilteredSubjects;
   std::vector< std::string > LocalAdapters;
 
-  for( int a = Arg; a < argc; ++a )
-  {
+  for( int a = Arg; a < argc; ++a ){
     std::string arg = argv[a];
-    if(arg == "--help")
-    {
+    if(arg == "--help"){
       std::cout << argv[ 0 ] << " <HostName>: allowed options include:" << std::endl;
       std::cout << " --log_file <FileName>" << std::endl;
       std::cout << " --enable_multicast <MulticastAddress:Port>" << std::endl;
@@ -285,152 +268,98 @@ int main( int argc, char* argv[] )
       std::cout << " --optimize-wireless" << std::endl;
       
       return 0;
-    }
-    else if( arg == "--log_file" || arg == "--log-file" )
-    {
-      if(a + 1 < argc)
-      {
+    }else if( arg == "--log_file" || arg == "--log-file" ){
+      if(a + 1 < argc){
         LogFile = argv[a+1];
         std::cout << "Using log file <"<< LogFile << "> ..." << std::endl;
         ++a;
       }
-    }
-    else if ( arg == "--enable_multicast" || arg == "--enable-multicast" )
-    {
-      if(a + 1 < argc)
-      {
+    }else if ( arg == "--enable_multicast" || arg == "--enable-multicast" ){
+      if(a + 1 < argc){
         MulticastAddress = argv[a+1];
         std::cout << "Enabling multicast address <"<< MulticastAddress << "> ..." << std::endl;
         ++a;
       }
-    }
-    else if ( arg == "--connect_to_multicast" || arg == "--connect-to-multicast" )
-    {
+    }else if ( arg == "--connect_to_multicast" || arg == "--connect-to-multicast" ){
       ConnectToMultiCast = true;
-      if(a + 2 < argc)
-      {
+      if(a + 2 < argc){
         MulticastAddress = argv[a+1];
         MulticastAdapter = argv[a+2];
         std::cout << "connecting to multicast address <"<< MulticastAddress << "> on adapter <" << MulticastAdapter << "> ..." << std::endl;
         a += 2;
       }
-    }
-    else if ( arg == "--enable_haptic_test" || arg == "--enable-haptic-test" )
-    {
+    }else if ( arg == "--enable_haptic_test" || arg == "--enable-haptic-test" ){
       EnableHapticTest = true;
       ++a;
-      if ( a < argc )
-      {
+      if ( a < argc ){
         //assuming no haptic device name starts with "--"
-        while( a < argc && strncmp( argv[a], "--", 2 ) !=0  )
-        {
+        while( a < argc && strncmp( argv[a], "--", 2 ) !=0  ){
           HapticOnList.push_back( argv[a] );
           ++a;
         }
       }
-    }
-    else if( arg=="--centroids" )
-    {
+    }else if( arg=="--centroids" ){
       bReadCentroids = true;
-    }
-    else if( arg=="--rays")
-    {
+    }else if( arg=="--rays"){
       bReadRayData = true;
-    }
-    else if (arg == "--greyscale")
-    {
+    }else if (arg == "--greyscale"){
       bReadGreyscaleData = true;
       bReadCentroids = true;
       std::cout << "Enabling greyscale data also enables centroid output" << std::endl;
-    }
-    else if (arg == "--video")
-    {
+    }else if (arg == "--video"){
       bReadVideoData = true;
       bReadCentroids = true;
       std::cout << "Enabling video data also enables centroid output" << std::endl;
-    }
-    else if ( arg == "--marker-traj-id" )
-    {
+    }else if ( arg == "--marker-traj-id" ){
       bMarkerTrajIds = true;
-    }
-    else if( arg == "--client-buffer-size" )
-    {
+    }else if( arg == "--client-buffer-size" ){
       ++a;
-      if( a < argc )
-      {
+      if( a < argc ){
         ClientBufferSize = atoi( argv[a] );
       }
-    }
-    else if( arg == "--set-axis-mapping" )
-    {
+    }else if( arg == "--set-axis-mapping" ){
       ++a;
-      if( a < argc )
-      {
+      if( a < argc ){
         AxisMapping = argv[a] ;
 
-        if( AxisMapping == "XUp" || AxisMapping == "YUp" || AxisMapping == "ZUp" )
-        {
+        if( AxisMapping == "XUp" || AxisMapping == "YUp" || AxisMapping == "ZUp" ){
           std::cout << "Setting Axis to "<< AxisMapping << std::endl;
-        }
-        else
-        {
+        }else{
           std::cout << "Unknown axis setting: "<<  AxisMapping <<" . Should be XUp, YUp, or ZUp" << std::endl;
           return 1;
         }
       }
-    }
-    else if ( arg == "--segments-only" )
-    {
+    }else if ( arg == "--segments-only" ){
       bSegmentsOnly = true;
-    }
-    else if ( arg == "--lightweight" )
-    {
+    }else if ( arg == "--lightweight" ){
       bLightweight = true;
-    }
-    else if( arg == "--unlabeled" )
-    {
+    }else if( arg == "--unlabeled" ){
       bUnlabelled = true;
-    }
-    else if( arg == "--subjects" )
-    {
+    }else if( arg == "--subjects" ){
       ++a;
       //assuming no subject name starts with "--"
-      while( a < argc )
-      {
-        if (strncmp( argv[a], "--", 2 ) == 0)
-        { 
+      while( a < argc ){
+        if (strncmp( argv[a], "--", 2 ) == 0){
           --a;
           break;
         }
         FilteredSubjects.push_back( argv[ a ] );
         ++a;
       }
-    }
-    else if ( arg == "--fetch" )
-    {
+    }else if ( arg == "--fetch" ){
       bFetch = true;
       bPreFetch = false;
-    }
-    else if ( arg == "--pre-fetch" )
-    {
+    }else if ( arg == "--pre-fetch" ){
       bFetch = false;
       bPreFetch = true;
-    }
-    else if ( arg == "--stream" )
-    {
+    }else if ( arg == "--stream" ){
       bFetch = false;
       bPreFetch = false;
-    }
-    else if ( arg == "--quiet" )
-    {
+    }else if ( arg == "--quiet" ){
       bQuiet = true;
-    }
-    else if ( arg == "--optimize-wireless" )
-    {
+    }else if ( arg == "--optimize-wireless" ){
       bOptimizeWireless = true;
-    }
-    else
-    {
+    }else{
       std::cout << "Failed to understand argument <" << argv[a] << ">...exiting" << std::endl;
       return 1;
     }
@@ -440,8 +369,7 @@ int main( int argc, char* argv[] )
 
   ViconDataStreamSDK::CPP::Client MulticastClient;
 
-  if ( ConnectToMultiCast )
-  {
+  if ( ConnectToMultiCast ){
     // Connect to a server
     std::cout << "Connecting to multicast group " << MulticastAddress << " on adapter " << MulticastAdapter << " ..." << std::flush;
 
@@ -449,18 +377,15 @@ int main( int argc, char* argv[] )
     // Multicast connection
     const bool Ok = ( MulticastClient.ConnectToMulticast( MulticastAdapter, MulticastAddress ).Result == Result::Success );
 
-    if ( !Ok )
-    {
+    if ( !Ok ){
       std::cout << "Warning - connect failed..." << std::endl;
     }
   }
 
   bool First = true;
   std::string HostName;
-  for (const auto & rHost : Hosts)
-  {
-    if( !First )
-    {
+  for (const auto & rHost : Hosts){
+    if( !First ){
       HostName += ";";
     }
     HostName += rHost;
@@ -470,34 +395,28 @@ int main( int argc, char* argv[] )
   // Make a new client
   ViconDataStreamSDK::CPP::Client DirectClient;
 
-  if( bOptimizeWireless )
-  {
+  if( bOptimizeWireless ){
     const Output_ConfigureWireless ConfigureWirelessResult = DirectClient.ConfigureWireless();
 
-    if( ConfigureWirelessResult.Result != Result::Success )
-    {
+    if( ConfigureWirelessResult.Result != Result::Success ){
       std::cout << "Wireless Config: " << ConfigureWirelessResult.Error << std::endl;
     }
   }
 
   const bool bConnectDirect = !ConnectToMultiCast || EnableMultiCast;
 
-  if( bConnectDirect )
-  {
+  if( bConnectDirect ){
     // Connect to a server
     std::cout << "Connecting to " << HostName << " ..." << std::flush;
-    while ( !DirectClient.IsConnected().Connected )
-    {
+    while ( !DirectClient.IsConnected().Connected ){
       // Direct connection
 
       const Output_Connect ConnectResult = DirectClient.Connect(HostName);
       const bool ok = (ConnectResult.Result == Result::Success );
 
-      if ( !ok )
-      {
+      if ( !ok ){
         std::cout << "Warning - connect failed... ";
-        switch (ConnectResult.Result)
-        {
+        switch (ConnectResult.Result){
         case Result::ClientAlreadyConnected:
           std::cout << "Client Already Connected" << std::endl;
           break;
@@ -527,39 +446,31 @@ int main( int argc, char* argv[] )
     // Enable some different data types
     DirectClient.EnableSegmentData();
 
-    if ( !bSegmentsOnly )
-    {
+    if ( !bSegmentsOnly ){
       DirectClient.EnableMarkerData();
       DirectClient.EnableUnlabeledMarkerData();
       DirectClient.EnableMarkerRayData();
       DirectClient.EnableDeviceData();
       DirectClient.EnableDebugData();
     }
-    if( bReadCentroids )
-    {
+    if( bReadCentroids ){
       DirectClient.EnableCentroidData();
     }
-    if( bReadRayData )
-    {
+    if( bReadRayData ){
       DirectClient.EnableMarkerRayData();
     }
-    if (bReadGreyscaleData)
-    {
+    if (bReadGreyscaleData){
       DirectClient.EnableGreyscaleData();
     }
-    if (bReadVideoData)
-    {
+    if (bReadVideoData){
       DirectClient.EnableVideoData();
     }
-    if ( bLightweight )
-    {
-      if( DirectClient.EnableLightweightSegmentData().Result != Result::Success )
-      {
+    if ( bLightweight ){
+      if( DirectClient.EnableLightweightSegmentData().Result != Result::Success ){
         std::cout << "Server does not support lightweight segment data" << std::endl;
       }
     }
-    if( bUnlabelled )
-    {
+    if( bUnlabelled ){
       // This must be done after lightweight is enabled, as the call the lightweight will disable the data
       DirectClient.EnableUnlabeledMarkerData();
     }
@@ -577,16 +488,11 @@ int main( int argc, char* argv[] )
     std::cout << "Debug Data Enabled: "            << Adapt( DirectClient.IsDebugDataEnabled().Enabled)            << std::endl;
 
     // Set the streaming mode
-    if( bFetch )
-    {
+    if( bFetch ){
       DirectClient.SetStreamMode( ViconDataStreamSDK::CPP::StreamMode::ClientPull );
-    }
-    else if( bPreFetch )
-    {
+    }else if( bPreFetch ){
       DirectClient.SetStreamMode( ViconDataStreamSDK::CPP::StreamMode::ClientPullPreFetch );
-    }
-    else
-    {
+    }else{
       DirectClient.SetStreamMode( ViconDataStreamSDK::CPP::StreamMode::ServerPush );
     }
 
@@ -595,14 +501,11 @@ int main( int argc, char* argv[] )
                              Direction::Left, 
                              Direction::Up ); // Z-up
 
-    if( AxisMapping == "YUp")
-    {
+    if( AxisMapping == "YUp"){
       DirectClient.SetAxisMapping( Direction::Forward, 
                                Direction::Up, 
                                Direction::Right ); // Y-up
-    }
-    else if( AxisMapping == "XUp")
-    {
+    }else if( AxisMapping == "XUp"){
       DirectClient.SetAxisMapping( Direction::Up, 
                                Direction::Forward, 
                                Direction::Left ); // Y-up
@@ -620,16 +523,13 @@ int main( int argc, char* argv[] )
                              << _Output_GetVersion.Point << "."
                              << _Output_GetVersion.Revision << std::endl;
 
-    if( ClientBufferSize > 0 )
-    {
+    if( ClientBufferSize > 0 ){
       DirectClient.SetBufferSize( ClientBufferSize );
       std::cout << "Setting client buffer size to " << ClientBufferSize << std::endl;
     }
 
-    if( EnableMultiCast )
-    {
-      if (Hosts.size() != 1)
-      {
+    if( EnableMultiCast ){
+      if (Hosts.size() != 1){
         std::cout << "Multicast only requires one hostname." << std::endl;
         return 1;
       }
@@ -638,8 +538,7 @@ int main( int argc, char* argv[] )
       DirectClient.StartTransmittingMulticast( Hosts.front(), MulticastAddress );
     }
 
-    if (!LogFile.empty())
-    {
+    if (!LogFile.empty()){
       std::size_t Pos = LogFile.find_last_of('.');
       std::string ClientLogFile = LogFile;
       std::string StreamLogFile = LogFile;
@@ -671,8 +570,7 @@ int main( int argc, char* argv[] )
     {
       // Get a frame
       OutputStream << "Waiting for new frame...";
-      while( MyClient.GetFrame().Result != Result::Success )
-      {
+      while( MyClient.GetFrame().Result != Result::Success ){
         // Sleep a little so that we don't lumber the CPU with a busy poll
         #ifdef WIN32
           Sleep( 200 );
@@ -686,10 +584,8 @@ int main( int argc, char* argv[] )
 
       // We have to call this after the call to get frame, otherwise we don't have any subject info
       // to map the name to ids
-      if( !bSubjectFilterApplied )
-      {
-        for( const auto& rSubject : FilteredSubjects )
-        {
+      if( !bSubjectFilterApplied ){
+        for( const auto& rSubject : FilteredSubjects ){
           Output_AddToSubjectFilter SubjectFilterResult = MyClient.AddToSubjectFilter(rSubject);
           bSubjectFilterApplied = bSubjectFilterApplied || SubjectFilterResult.Result == Result::Success;
         }
@@ -705,8 +601,7 @@ int main( int argc, char* argv[] )
       OutputStream << "Frame rate: "           << Rate.FrameRateHz          << std::endl;
 
       // Show frame rates
-      for( unsigned int FramerateIndex = 0 ; FramerateIndex < MyClient.GetFrameRateCount().Count ; ++FramerateIndex )
-      {
+      for( unsigned int FramerateIndex = 0 ; FramerateIndex < MyClient.GetFrameRateCount().Count ; ++FramerateIndex ){
         std::string FramerateName  = MyClient.GetFrameRateName( FramerateIndex ).Name;
         double      FramerateValue = MyClient.GetFrameRateValue( FramerateName ).Value;
 
@@ -731,8 +626,7 @@ int main( int argc, char* argv[] )
       // Get the latency
       OutputStream << "Latency: " << MyClient.GetLatencyTotal().Total << "s" << std::endl;
 
-      for( unsigned int LatencySampleIndex = 0 ; LatencySampleIndex < MyClient.GetLatencySampleCount().Count ; ++LatencySampleIndex )
-      {
+      for( unsigned int LatencySampleIndex = 0 ; LatencySampleIndex < MyClient.GetLatencySampleCount().Count ; ++LatencySampleIndex ){
         std::string SampleName  = MyClient.GetLatencySampleName( LatencySampleIndex ).Name;
         double      SampleValue = MyClient.GetLatencySampleValue( SampleName ).Value;
 
@@ -744,28 +638,20 @@ int main( int argc, char* argv[] )
       OutputStream << "Hardware Frame Number: " << _Output_GetHardwareFrameNumber.HardwareFrameNumber << std::endl;
 
 
-      if (EnableHapticTest == true)
-      {
-        for (size_t h = 0; h < HapticOnList.size(); ++h)
-        {
-          if (Counter % 2 == 0)
-          {
+      if (EnableHapticTest == true){
+        for (size_t h = 0; h < HapticOnList.size(); ++h){
+          if (Counter % 2 == 0){
             Output_SetApexDeviceFeedback Output = MyClient.SetApexDeviceFeedback(HapticOnList[h], true);
-            if (Output.Result == Result::Success)
-            {
+            if (Output.Result == Result::Success){
               OutputStream << "Turn haptic feedback on for device: " << HapticOnList[h] << std::endl;
-            }
-            else if (Output.Result == Result::InvalidDeviceName)
-            {
+            }else if (Output.Result == Result::InvalidDeviceName){
               OutputStream << "Device doesn't exist: " << HapticOnList[h] << std::endl;
             }
           }
-          if (Counter % 20 == 0)
-          {
+          if (Counter % 20 == 0){
             Output_SetApexDeviceFeedback Output = MyClient.SetApexDeviceFeedback(HapticOnList[h], false);
 
-            if (Output.Result == Result::Success)
-            {
+            if (Output.Result == Result::Success){
               OutputStream << "Turn haptic feedback off for device: " << HapticOnList[h] << std::endl;
             }
           }
@@ -775,8 +661,7 @@ int main( int argc, char* argv[] )
       // Count the number of subjects
       unsigned int SubjectCount = MyClient.GetSubjectCount().SubjectCount;
       OutputStream << "Subjects (" << SubjectCount << "):" << std::endl;
-      for( unsigned int SubjectIndex = 0 ; SubjectIndex < SubjectCount ; ++SubjectIndex )
-      {
+      for( unsigned int SubjectIndex = 0 ; SubjectIndex < SubjectCount ; ++SubjectIndex ){
         OutputStream << "  Subject #" << SubjectIndex << std::endl;
 
         // Get the subject name
@@ -790,8 +675,7 @@ int main( int argc, char* argv[] )
         // Count the number of segments
         unsigned int SegmentCount = MyClient.GetSegmentCount( SubjectName ).SegmentCount;
         OutputStream << "    Segments (" << SegmentCount << "):" << std::endl;
-        for( unsigned int SegmentIndex = 0 ; SegmentIndex < SegmentCount ; ++SegmentIndex )
-        {
+        for( unsigned int SegmentIndex = 0 ; SegmentIndex < SegmentCount ; ++SegmentIndex ){
           OutputStream << "      Segment #" << SegmentIndex << std::endl;
 
           // Get the segment name
@@ -805,8 +689,7 @@ int main( int argc, char* argv[] )
           // Get the segment's children
           unsigned int ChildCount = MyClient.GetSegmentChildCount( SubjectName, SegmentName ).SegmentCount;
           OutputStream << "     Children (" << ChildCount << "):" << std::endl;
-          for( unsigned int ChildIndex = 0 ; ChildIndex < ChildCount ; ++ChildIndex )
-          {
+          for( unsigned int ChildIndex = 0 ; ChildIndex < ChildCount ; ++ChildIndex ){
             std::string ChildName = MyClient.GetSegmentChildName( SubjectName, SegmentName, ChildIndex ).SegmentName;
             OutputStream << "       " << ChildName << std::endl;
           }
@@ -814,8 +697,7 @@ int main( int argc, char* argv[] )
           // Get the static segment scale
           Output_GetSegmentStaticScale _Output_GetSegmentStaticScale =
             MyClient.GetSegmentStaticScale( SubjectName, SegmentName );
-          if( _Output_GetSegmentStaticScale.Result == Result::Success )
-          {
+          if( _Output_GetSegmentStaticScale.Result == Result::Success ){
             OutputStream << "        Static Scale: (" << _Output_GetSegmentStaticScale.Scale[ 0 ] << ", "
                         << _Output_GetSegmentStaticScale.Scale[ 1 ] << ", "
                         << _Output_GetSegmentStaticScale.Scale[ 2 ] << ")" << std::endl;
@@ -960,8 +842,7 @@ int main( int argc, char* argv[] )
 
         // Get the quality of the subject (object) if supported
         Output_GetObjectQuality _Output_GetObjectQuality = MyClient.GetObjectQuality( SubjectName );
-        if( _Output_GetObjectQuality.Result == Result::Success )
-        {
+        if( _Output_GetObjectQuality.Result == Result::Success ){
           double Quality = _Output_GetObjectQuality.Quality;
           OutputStream << "    Quality: " << Quality << std::endl;
         }
@@ -969,8 +850,7 @@ int main( int argc, char* argv[] )
         // Count the number of markers
         unsigned int MarkerCount = MyClient.GetMarkerCount( SubjectName ).MarkerCount;
         OutputStream << "    Markers (" << MarkerCount << "):" << std::endl;
-        for( unsigned int MarkerIndex = 0 ; MarkerIndex < MarkerCount ; ++MarkerIndex )
-        {
+        for( unsigned int MarkerIndex = 0 ; MarkerIndex < MarkerCount ; ++MarkerIndex ){
           // Get the marker name
           std::string MarkerName = MyClient.GetMarkerName( SubjectName, MarkerIndex ).MarkerName;
 
@@ -988,16 +868,13 @@ int main( int argc, char* argv[] )
                                         << _Output_GetMarkerGlobalTranslation.Translation[ 2 ]  << ") "
                                         << Adapt( _Output_GetMarkerGlobalTranslation.Occluded ) << std::endl;
 
-          if( bReadRayData )
-          {
+          if( bReadRayData ){
             Output_GetMarkerRayContributionCount _Output_GetMarkerRayContributionCount =
               MyClient.GetMarkerRayContributionCount(SubjectName, MarkerName);
 
-            if( _Output_GetMarkerRayContributionCount.Result == Result::Success )
-            {
+            if( _Output_GetMarkerRayContributionCount.Result == Result::Success ){
               OutputStream << "      Contributed to by: ";
-              for( unsigned int ContributionIndex = 0; ContributionIndex < _Output_GetMarkerRayContributionCount.RayContributionsCount; ++ContributionIndex )
-              {
+              for( unsigned int ContributionIndex = 0; ContributionIndex < _Output_GetMarkerRayContributionCount.RayContributionsCount; ++ContributionIndex ){
                 Output_GetMarkerRayContribution _Output_GetMarkerRayContribution =
                   MyClient.GetMarkerRayContribution( SubjectName, MarkerName, ContributionIndex );
                 OutputStream << "ID:" << _Output_GetMarkerRayContribution.CameraID << " Index:" << _Output_GetMarkerRayContribution.CentroidIndex << " ";
@@ -1011,15 +888,13 @@ int main( int argc, char* argv[] )
       // Get the unlabeled markers
       unsigned int UnlabeledMarkerCount = MyClient.GetUnlabeledMarkerCount().MarkerCount;
       OutputStream << "  Unlabeled Markers (" << UnlabeledMarkerCount << "):" << std::endl;
-      for( unsigned int UnlabeledMarkerIndex = 0 ; UnlabeledMarkerIndex < UnlabeledMarkerCount ; ++UnlabeledMarkerIndex )
-      {
+      for( unsigned int UnlabeledMarkerIndex = 0 ; UnlabeledMarkerIndex < UnlabeledMarkerCount ; ++UnlabeledMarkerIndex ){
         // Get the global marker translation
         Output_GetUnlabeledMarkerGlobalTranslation _Output_GetUnlabeledMarkerGlobalTranslation =
           MyClient.GetUnlabeledMarkerGlobalTranslation( UnlabeledMarkerIndex );
 
         std::ostringstream MarkerTrajIDs;
-        if ( bMarkerTrajIds )
-        {
+        if ( bMarkerTrajIds ){
           MarkerTrajIDs << ": Traj ID " << _Output_GetUnlabeledMarkerGlobalTranslation.MarkerID;
         }
 
@@ -1034,15 +909,13 @@ int main( int argc, char* argv[] )
       // Get the labeled markers
       unsigned int LabeledMarkerCount = MyClient.GetLabeledMarkerCount().MarkerCount;
       OutputStream << "  Labeled Markers (" << LabeledMarkerCount << "):" << std::endl;
-      for (unsigned int LabeledMarkerIndex = 0; LabeledMarkerIndex < LabeledMarkerCount; ++LabeledMarkerIndex)
-      {
+      for (unsigned int LabeledMarkerIndex = 0; LabeledMarkerIndex < LabeledMarkerCount; ++LabeledMarkerIndex){
         // Get the global marker translation
         Output_GetLabeledMarkerGlobalTranslation _Output_GetLabeledMarkerGlobalTranslation =
           MyClient.GetLabeledMarkerGlobalTranslation(LabeledMarkerIndex);
 
         std::ostringstream MarkerTrajIDs;
-        if ( bMarkerTrajIds )
-        {
+        if ( bMarkerTrajIds ){
           MarkerTrajIDs << ": Traj ID " << _Output_GetLabeledMarkerGlobalTranslation.MarkerID;
         }
 
@@ -1057,8 +930,7 @@ int main( int argc, char* argv[] )
       // Count the number of devices
       unsigned int DeviceCount = MyClient.GetDeviceCount().DeviceCount;
       OutputStream << "  Devices (" << DeviceCount << "):" << std::endl;
-      for( unsigned int DeviceIndex = 0 ; DeviceIndex < DeviceCount ; ++DeviceIndex )
-      {
+      for( unsigned int DeviceIndex = 0 ; DeviceIndex < DeviceCount ; ++DeviceIndex ){
         OutputStream << "    Device #" << DeviceIndex << ":" << std::endl;
 
         // Get the device name and type
@@ -1069,8 +941,7 @@ int main( int argc, char* argv[] )
         // Count the number of device outputs
         unsigned int DeviceOutputCount = MyClient.GetDeviceOutputCount( _Output_GetDeviceName.DeviceName ).DeviceOutputCount;
         OutputStream << "      Device Outputs (" << DeviceOutputCount << "):" << std::endl;
-        for( unsigned int DeviceOutputIndex = 0 ; DeviceOutputIndex < DeviceOutputCount ; ++DeviceOutputIndex )
-        {
+        for( unsigned int DeviceOutputIndex = 0 ; DeviceOutputIndex < DeviceOutputCount ; ++DeviceOutputIndex ){
           // Get the device output name and unit
           Output_GetDeviceOutputComponentName _Output_GetDeviceOutputComponentName =
             MyClient.GetDeviceOutputComponentName( _Output_GetDeviceName.DeviceName, DeviceOutputIndex );
@@ -1083,8 +954,7 @@ int main( int argc, char* argv[] )
           OutputStream << "      Device Output #" << DeviceOutputIndex << ":" << std::endl;
           OutputStream << "      Samples (" << DeviceOutputSubsamples << "):" << std::endl;
 
-          for( unsigned int DeviceOutputSubsample = 0; DeviceOutputSubsample < DeviceOutputSubsamples; ++DeviceOutputSubsample )
-          {
+          for( unsigned int DeviceOutputSubsample = 0; DeviceOutputSubsample < DeviceOutputSubsamples; ++DeviceOutputSubsample ){
             OutputStream << "        Sample #" << DeviceOutputSubsample << ":" << std::endl;
 
             // Get the device output value
@@ -1106,16 +976,14 @@ int main( int argc, char* argv[] )
       unsigned int ForcePlateCount = MyClient.GetForcePlateCount().ForcePlateCount;
       OutputStream << "  Force Plates: (" << ForcePlateCount << ")" << std::endl;
 
-      for( unsigned int ForcePlateIndex = 0 ; ForcePlateIndex < ForcePlateCount ; ++ForcePlateIndex )
-      {
+      for( unsigned int ForcePlateIndex = 0 ; ForcePlateIndex < ForcePlateCount ; ++ForcePlateIndex ){
         OutputStream << "    Force Plate #" << ForcePlateIndex << ":" << std::endl;
 
         unsigned int ForcePlateSubsamples = MyClient.GetForcePlateSubsamples( ForcePlateIndex ).ForcePlateSubsamples;
 
         OutputStream << "    Samples (" << ForcePlateSubsamples << "):" << std::endl;
 
-        for( unsigned int ForcePlateSubsample = 0; ForcePlateSubsample < ForcePlateSubsamples; ++ForcePlateSubsample )
-        {
+        for( unsigned int ForcePlateSubsample = 0; ForcePlateSubsample < ForcePlateSubsamples; ++ForcePlateSubsample ){
           OutputStream << "      Sample #" << ForcePlateSubsample << ":" << std::endl;
 
           Output_GetGlobalForceVector _Output_GetForceVector = MyClient.GetGlobalForceVector( ForcePlateIndex, ForcePlateSubsample );
@@ -1141,8 +1009,7 @@ int main( int argc, char* argv[] )
       unsigned int EyeTrackerCount = MyClient.GetEyeTrackerCount().EyeTrackerCount;
       OutputStream << "  Eye Trackers: (" << EyeTrackerCount << ")" << std::endl;
 
-      for( unsigned int EyeTrackerIndex = 0 ; EyeTrackerIndex < EyeTrackerCount ; ++EyeTrackerIndex )
-      {
+      for( unsigned int EyeTrackerIndex = 0 ; EyeTrackerIndex < EyeTrackerCount ; ++EyeTrackerIndex ){
         OutputStream << "    Eye Tracker #" << EyeTrackerIndex << ":" << std::endl;
 
         Output_GetEyeTrackerGlobalPosition _Output_GetEyeTrackerGlobalPosition = MyClient.GetEyeTrackerGlobalPosition( EyeTrackerIndex );
@@ -1160,13 +1027,11 @@ int main( int argc, char* argv[] )
         OutputStream << Adapt( _Output_GetEyeTrackerGlobalGazeVector.Occluded ) << std::endl;
       }
 
-      if( bReadCentroids )
-      {
+      if( bReadCentroids ){
         unsigned int CameraCount = MyClient.GetCameraCount().CameraCount;
         OutputStream << "Cameras(" << CameraCount << "):" << std::endl;
 
-        for( unsigned int CameraIndex = 0; CameraIndex < CameraCount; ++CameraIndex )
-        {
+        for( unsigned int CameraIndex = 0; CameraIndex < CameraCount; ++CameraIndex ){
           OutputStream << "  Camera #" << CameraIndex << ":" << std::endl;
 
           const std::string CameraName = MyClient.GetCameraName( CameraIndex ).CameraName;
@@ -1183,8 +1048,7 @@ int main( int argc, char* argv[] )
           unsigned int CentroidCount = MyClient.GetCentroidCount( CameraName ).CentroidCount;
           OutputStream << "    Centroids(" << CentroidCount << "):" << std::endl;
 
-          for( unsigned int CentroidIndex = 0; CentroidIndex < CentroidCount; ++CentroidIndex )
-          {
+          for( unsigned int CentroidIndex = 0; CentroidIndex < CentroidCount; ++CentroidIndex ){
             OutputStream << "      Centroid #" << CentroidIndex << ":" << std::endl;
 
             Output_GetCentroidPosition _Output_GetCentroidPosition = MyClient.GetCentroidPosition( CameraName, CentroidIndex );
@@ -1199,20 +1063,17 @@ int main( int argc, char* argv[] )
             }
           }
 
-          if (bReadGreyscaleData)
-          {
+          if (bReadGreyscaleData){
             unsigned int BlobCount = MyClient.GetGreyscaleBlobCount(CameraName).BlobCount;
             OutputStream << "    Blobs(" << BlobCount << "):" << std::endl;
 
             Output_GetCameraSensorMode _Output_SensorMode = MyClient.GetCameraSensorMode(CameraName);
-            if (_Output_SensorMode.Result == Result::Success)
-            {
+            if (_Output_SensorMode.Result == Result::Success){
               OutputStream << "   SensorMode( " << _Output_SensorMode.SensorMode << "):" << std::endl;
             }
 
             Output_GetCameraWindowSize _Output_CameraWindowSize = MyClient.GetCameraWindowSize(CameraName);
-            if (_Output_CameraWindowSize.Result == Result::Success)
-            {
+            if (_Output_CameraWindowSize.Result == Result::Success){
               OutputStream << "   WindowSize( "
                 << _Output_CameraWindowSize.WindowStartX << ", "
                 << _Output_CameraWindowSize.WindowStartY<< ", "
@@ -1221,8 +1082,7 @@ int main( int argc, char* argv[] )
             }
 
             Output_GetGreyscaleBlobSubsampleInfo _Output_SubsampleInfo = MyClient.GetGreyscaleBlobSubsampleInfo(CameraName);
-            if( _Output_SubsampleInfo.Result == Result::Success )
-            {
+            if( _Output_SubsampleInfo.Result == Result::Success ){
               OutputStream << "   Subsampling( "
                 << _Output_SubsampleInfo.TwiceOffsetX << ", "
                 << _Output_SubsampleInfo.TwiceOffsetY << ", "
@@ -1230,13 +1090,11 @@ int main( int argc, char* argv[] )
                 << static_cast<unsigned int>( _Output_SubsampleInfo.SensorPixelsPerImagePixelY ) << " ):" << std::endl;
             }
 
-            for (unsigned int BlobIndex = 0; BlobIndex < BlobCount; ++BlobIndex)
-            {
+            for (unsigned int BlobIndex = 0; BlobIndex < BlobCount; ++BlobIndex){
               OutputStream << "      Blob #" << BlobIndex << ":" << std::endl;
 
               Output_GetGreyscaleBlob _Output_GetGreyscaleBlob = MyClient.GetGreyscaleBlob(CameraName, BlobIndex);
-              if (_Output_GetGreyscaleBlob.Result == Result::Success)
-              {
+              if (_Output_GetGreyscaleBlob.Result == Result::Success){
                 // Don't print out the whole blob
                 OutputStream << "        # Line Positions X: " << _Output_GetGreyscaleBlob.BlobLinePositionsX.size() << std::endl;
                 OutputStream << "        # Line Positions Y: " << _Output_GetGreyscaleBlob.BlobLinePositionsY.size() << std::endl;
@@ -1245,11 +1103,9 @@ int main( int argc, char* argv[] )
             }
           }
 
-          if (bReadVideoData)
-          {
+          if (bReadVideoData){
             Output_GetVideoFrame _Output_GetVideoFrame = MyClient.GetVideoFrame(CameraName);
-            if (_Output_GetVideoFrame.Result == Result::Success)
-            {
+            if (_Output_GetVideoFrame.Result == Result::Success){
               OutputStream << "    Video Frame:" << std::endl;
               OutputStream << "      Width:" << _Output_GetVideoFrame.m_Width << std::endl;
               OutputStream << "      Height:" << _Output_GetVideoFrame.m_Height << std::endl;
@@ -1267,28 +1123,23 @@ int main( int argc, char* argv[] )
       ++Counter;
     }
 
-    if( EnableMultiCast )
-    {
+    if( EnableMultiCast ){
       MyClient.StopTransmittingMulticast();
     }
     MyClient.DisableSegmentData();
     MyClient.DisableMarkerData();
     MyClient.DisableUnlabeledMarkerData();
     MyClient.DisableDeviceData();
-    if( bReadCentroids )
-    {
+    if( bReadCentroids ){
       MyClient.DisableCentroidData();
     }
-    if( bReadRayData )
-    {
+    if( bReadRayData ){
       MyClient.DisableMarkerRayData();
     }
-    if (bReadGreyscaleData)
-    {
+    if (bReadGreyscaleData){
       MyClient.DisableGreyscaleData();
     }
-    if (bReadVideoData)
-    {
+    if (bReadVideoData){
       MyClient.DisableVideoData();
     }
 
