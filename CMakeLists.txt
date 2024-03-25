@@ -65,22 +65,26 @@ target_link_libraries(uav_localization
 )
 add_dependencies(uav_localization ${PROJECT_NAME}_gencpp)
 
-add_executable(calibrate src/calibrate_segment.cpp)
+add_executable(calibrate
+        src/calibrate_segment.cpp
+)
 target_link_libraries(calibrate ${catkin_LIBRARIES})
 add_dependencies(calibrate ${PROJECT_NAME}_gencpp)
 
-add_executable(tf_distort src/tf_distort.cpp)
+add_executable(tf_distort
+        src/tf_distort.cpp
+)
 target_link_libraries(tf_distort ${catkin_LIBRARIES})
 add_dependencies(tf_distort ${PROJECT_NAME}_gencpp ${PROJECT_NAME}_gencfg)
 
-add_executable(testclient src/ViconDataStreamSDK_CPPTest.cpp)
+add_executable(testclient
+        src/ViconDataStreamSDK_CPPTest.cpp
+)
 target_link_libraries(testclient vicon_sdk)
 
-# Install
 install(TARGETS vicon_sdk uav_localization calibrate tf_distort testclient
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch cfg DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-

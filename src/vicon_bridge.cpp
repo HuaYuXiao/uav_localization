@@ -39,10 +39,14 @@
 
 // ROS
 #include <ros/ros.h>
+
+// TODO: upgrade tf to tf2_ros
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
+
 #include <geometry_msgs/TransformStamped.h>
+
 #include <vicon_bridge/viconGrabPose.h>
 #include <vicon_bridge/Markers.h>
 #include <vicon_bridge/Marker.h>
