@@ -17,7 +17,7 @@ roslaunch uav_localization vicon.launch
 You may need to set the "datastream_hostport" parameter to your vicon computer's ip/hostname
 
 OPERATION
-The vicon_bridge node initiates a connection with the Vicon data source (e.g. Nexus or Tracker) via the DataStream API. The parameter ~datastream_hostport should be set to the IP address and port (joined with a colon) of the DataStream server machine, e.g. 192.168.28.58:801 (801 is the default port). The parameter ~stream_mode is used for the call to the DataStream SetStreamMode method; valid values are "ServerPush", "ClientPull". 
+The vicon_bridge node initiates a connection with the Vicon data source (e.g. Nexus or Tracker) via the DataStream API. The parameter ~datastream_hostport should be set to the IP address and port (joined with a colon) of the DataStream server machine, e.g. `192.168.28.58:801` (801 is the default port). The parameter ~stream_mode is used for the call to the DataStream SetStreamMode method; valid values are "ServerPush", "ClientPull". 
 
 All available subjects and segments are recognized automatically and published as tf transform and geometry_msgs::TransformStamped
 
@@ -67,6 +67,11 @@ Parameters
 - ~/<subject_name>/segment_name/zero_pose/position/y
 - ~/<subject_name>/segment_name/zero_pose/position/z
   position of the pose at origin of the corresponding vehicle
+
+
+Reference:
+- ⭐ https://github.com/amov-lab/Prometheus/blob/main/Experiment/launch/prometheus_experiment.launch
+
 
 
 ## 谢辞
