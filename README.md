@@ -13,7 +13,7 @@ This is a driver providing data from VICON motion capture systems. It is based o
 ### 编译安装
 
 ```bash
-catkin_make --source Modules/control --build build/control
+catkin_make install -j1 -l1 --source Modules/control --build build/control
 ```
 
 ### QUICK START
