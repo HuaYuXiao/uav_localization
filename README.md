@@ -13,6 +13,10 @@ This is a driver providing data from VICON motion capture systems. It is based o
 ### 编译安装
 
 ```bash
+cd ~/Prometheus
+```
+
+```bash
 catkin_make install -j1 -l1 --source Modules/control --build build/control
 ```
 
