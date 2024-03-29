@@ -39,10 +39,14 @@
 
 // ROS
 #include <ros/ros.h>
+
+// TODO: upgrade tf to tf2_ros
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
+
 #include <geometry_msgs/TransformStamped.h>
+
 #include <vicon_bridge/viconGrabPose.h>
 #include <vicon_bridge/Markers.h>
 #include <vicon_bridge/Marker.h>
@@ -61,10 +65,8 @@ using std::map;
 
 using namespace ViconDataStreamSDK::CPP;
 
-string Adapt(const Direction::Enum i_Direction)
-{
-  switch (i_Direction)
-  {
+string Adapt(const Direction::Enum i_Direction){
+  switch (i_Direction){
     case Direction::Forward:
       return "Forward";
     case Direction::Backward:
@@ -82,10 +84,8 @@ string Adapt(const Direction::Enum i_Direction)
   }
 }
 
-string Adapt(const Result::Enum i_result)
-{
-  switch (i_result)
-  {
+string Adapt(const Result::Enum i_result){
+  switch (i_result){
     case Result::ClientAlreadyConnected:
       return "ClientAlreadyConnected";
     case Result::ClientConnectionFailed:
@@ -131,8 +131,7 @@ string Adapt(const Result::Enum i_result)
   }
 }
 
-class SegmentPublisher
-{
+class SegmentPublisher{
 public:
   ros::Publisher pub;
   bool is_ready;
@@ -140,16 +139,13 @@ public:
   bool calibrated;
   SegmentPublisher() :
     is_ready(false), calibration_pose(tf::Pose::getIdentity()),
-        calibrated(false)
-  {
-  }
-  ;
+        calibrated(false){
+  };
 };
 
 typedef map<string, SegmentPublisher> SegmentMap;
 
-class ViconReceiver
-{
+class ViconReceiver{
 private:
   ros::NodeHandle nh;
   ros::NodeHandle nh_priv;
@@ -196,16 +192,14 @@ private:
   Client vicon_client_;
 
 public:
-  void startGrabbing()
-  {
+  void startGrabbing(){
     grab_frames_ = true;
     // test grabbing in the main loop and run an asynchronous spinner instead
     grabThread();
     //grab_frames_thread_ = boost::thread(&ViconReceiver::grabThread, this);
   }
 
-  void stopGrabbing()
-  {
+  void stopGrabbing(){
     grab_frames_ = false;
     //grab_frames_thread_.join();
   }
@@ -246,17 +240,14 @@ public:
                                                          this);
 
     // Publishers
-    if(publish_markers_)
-    {
+    if(publish_markers_){
       marker_pub_ = nh.advertise<vicon_bridge::Markers>(tracked_frame_suffix_ + "/markers", 10);
     }
     startGrabbing();
   }
 
-  ~ViconReceiver()
-  {
-    for (size_t i = 0; i < time_log_.size(); i++)
-    {
+  ~ViconReceiver(){
+    for (size_t i = 0; i < time_log_.size(); i++){
       std::cout << time_log_[i] << std::endl;
     }
     if (shutdown_vicon() == false){
@@ -265,8 +256,7 @@ public:
   }
 
 private:
-  void diagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat)
-  {
+  void diagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat){
     stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "OK");
     stat.add("latest VICON frame number", lastFrameNumber);
     stat.add("dropped frames", droppedFrameCount);
@@ -275,15 +265,13 @@ private:
     stat.add("# unlabeled markers", n_unlabeled_markers);
   }
 
-  bool init_vicon()
-  {
+  bool init_vicon(){
     ROS_INFO_STREAM("Connecting to Vicon DataStream SDK at " << host_name_ << " ...");
 
     ros::Duration d(1);
     Result::Enum result(Result::Unknown);
 
-    while (!vicon_client_.IsConnected().Connected)
-    {
+    while (!vicon_client_.IsConnected().Connected){
       vicon_client_.Connect(host_name_);
       ROS_INFO(".");
       d.sleep();
@@ -295,16 +283,13 @@ private:
     ROS_INFO_STREAM("... connected!");
 
     // ClientPullPrefetch doesn't make much sense here, since we're only forwarding the data
-    if (stream_mode_ == "ServerPush")
-    {
+    if (stream_mode_ == "ServerPush"){
       result = vicon_client_.SetStreamMode(StreamMode::ServerPush).Result;
     }
-    else if (stream_mode_ == "ClientPull")
-    {
+    else if (stream_mode_ == "ClientPull"){
       result = vicon_client_.SetStreamMode(StreamMode::ClientPull).Result;
     }
-    else
-    {
+    else{
       ROS_FATAL("Unknown stream mode -- options are ServerPush, ClientPull");
       ros::shutdown();
     }
@@ -326,8 +311,7 @@ private:
     return true;
   }
 
-  void createSegmentThread(const string subject_name, const string segment_name)
-  {
+  void createSegmentThread(const string subject_name, const string segment_name){
     ROS_INFO("creating new object %s/%s ...",subject_name.c_str(), segment_name.c_str() );
     boost::mutex::scoped_lock lock(segments_mutex_);
     SegmentPublisher & spub = segment_publishers_[subject_name + "/" + segment_name];
@@ -335,8 +319,7 @@ private:
     // we don't need the lock anymore, since rest is protected by is_ready
     lock.unlock();
 
-    if(publish_tf_)
-    {
+    if(publish_tf_){
       spub.pub = nh.advertise<geometry_msgs::TransformStamped>(tracked_frame_suffix_ + "/" + subject_name + "/"
                                                                                                             + segment_name, 10);
     }
@@ -352,15 +335,13 @@ private:
     have_params = have_params && nh_priv.getParam(param_suffix + "position/y", y);
     have_params = have_params && nh_priv.getParam(param_suffix + "position/z", z);
 
-    if (have_params)
-    {
+    if (have_params){
       ROS_INFO("loaded zero pose for %s/%s", subject_name.c_str(), segment_name.c_str());
       spub.calibration_pose.setRotation(tf::Quaternion(qx, qy, qz, qw));
       spub.calibration_pose.setOrigin(tf::Vector3(x, y, z));
       spub.calibration_pose = spub.calibration_pose.inverse();
     }
-    else
-    {
+    else{
       ROS_WARN("unable to load zero pose for %s/%s", subject_name.c_str(), segment_name.c_str());
       spub.calibration_pose.setIdentity();
     }
@@ -370,19 +351,15 @@ private:
 
   }
 
-  void createSegment(const string subject_name, const string segment_name)
-  {
+  void createSegment(const string subject_name, const string segment_name){
     boost::thread(&ViconReceiver::createSegmentThread, this, subject_name, segment_name);
   }
 
-  void grabThread()
-  {
+  void grabThread(){
     ros::Duration d(1.0 / 240.0);  // TODO: Configurable
 
-    while (ros::ok() && grab_frames_)
-    {
-      while (vicon_client_.GetFrame().Result != Result::Success && ros::ok())
-      {
+    while (ros::ok() && grab_frames_){
+      while (vicon_client_.GetFrame().Result != Result::Success && ros::ok()){
         ROS_INFO("getFrame returned false");
         d.sleep();
       }
@@ -395,8 +372,7 @@ private:
     }
   }
 
-  bool shutdown_vicon()
-  {
+  bool shutdown_vicon(){
     ROS_INFO_STREAM("stopping grabbing thread");
     stopGrabbing();
     ROS_INFO_STREAM("Disconnecting from Vicon DataStream SDK");
@@ -406,20 +382,17 @@ private:
     return true;
   }
 
-  bool process_frame()
-  {
+  bool process_frame(){
     static ros::Time lastTime;
     Output_GetFrameNumber OutputFrameNum = vicon_client_.GetFrameNumber();
 
     //frameCount++;
     //ROS_INFO_STREAM("Grabbed a frame: " << OutputFrameNum.FrameNumber);
     int frameDiff = 0;
-    if (lastFrameNumber != 0)
-    {
+    if (lastFrameNumber != 0){
       frameDiff = OutputFrameNum.FrameNumber - lastFrameNumber;
       frameCount += frameDiff;
-      if ((frameDiff) > 1)
-      {
+      if ((frameDiff) > 1){
         droppedFrameCount += frameDiff;
         double droppedFramePct = (double)droppedFrameCount / frameCount * 100;
         ROS_DEBUG_STREAM(frameDiff << " more (total " << droppedFrameCount << "/" << frameCount << ", "
@@ -428,22 +401,18 @@ private:
     }
     lastFrameNumber = OutputFrameNum.FrameNumber;
 
-    if (frameDiff == 0)
-    {
+    if (frameDiff == 0){
       return false;
     }
-    else
-    {
+    else{
       freq_status_.tick();
       ros::Duration vicon_latency(vicon_client_.GetLatencyTotal().Total);
 
-      if(publish_tf_ || broadcast_tf_)
-      {
+      if(publish_tf_ || broadcast_tf_){
         process_subjects(now_time - vicon_latency);
       }
 
-      if(publish_markers_)
-      {
+      if(publish_markers_){
         process_markers(now_time - vicon_latency, lastFrameNumber);
       }
 
@@ -452,8 +421,7 @@ private:
     }
   }
 
-  void process_subjects(const ros::Time& frame_time)
-  {
+  void process_subjects(const ros::Time& frame_time){
     string tracked_frame, subject_name, segment_name;
     unsigned int n_subjects = vicon_client_.GetSubjectCount().SubjectCount;
     SegmentMap::iterator pub_it;
@@ -462,24 +430,20 @@ private:
     geometry_msgs::TransformStampedPtr pose_msg(new geometry_msgs::TransformStamped);
     static unsigned int cnt = 0;
 
-    for (unsigned int i_subjects = 0; i_subjects < n_subjects; i_subjects++)
-    {
+    for (unsigned int i_subjects = 0; i_subjects < n_subjects; i_subjects++){
 
       subject_name = vicon_client_.GetSubjectName(i_subjects).SubjectName;
       unsigned int n_segments = vicon_client_.GetSegmentCount(subject_name).SegmentCount;
 
-      for (unsigned int i_segments = 0; i_segments < n_segments; i_segments++)
-      {
+      for (unsigned int i_segments = 0; i_segments < n_segments; i_segments++){
         segment_name = vicon_client_.GetSegmentName(subject_name, i_segments).SegmentName;
 
         Output_GetSegmentGlobalTranslation trans = vicon_client_.GetSegmentGlobalTranslation(subject_name, segment_name);
         Output_GetSegmentGlobalRotationQuaternion quat = vicon_client_.GetSegmentGlobalRotationQuaternion(subject_name,
                                                                                                         segment_name);
 
-        if (trans.Result == Result::Success && quat.Result == Result::Success)
-        {
-          if (!trans.Occluded && !quat.Occluded)
-          {
+        if (trans.Result == Result::Success && quat.Result == Result::Success){
+          if (!trans.Occluded && !quat.Occluded){
             transform.setOrigin(tf::Vector3(trans.Translation[0] / 1000, trans.Translation[1] / 1000,
                                                   trans.Translation[2] / 1000));
             transform.setRotation(tf::Quaternion(quat.Rotation[0], quat.Rotation[1], quat.Rotation[2],
@@ -489,68 +453,56 @@ private:
 
             boost::mutex::scoped_try_lock lock(segments_mutex_);
 
-            if (lock.owns_lock())
-            {
+            if (lock.owns_lock()){
               pub_it = segment_publishers_.find(subject_name + "/" + segment_name);
-              if (pub_it != segment_publishers_.end())
-              {
+              if (pub_it != segment_publishers_.end()){
                 SegmentPublisher & seg = pub_it->second;
                 //ros::Time thisTime = now_time - ros::Duration(latencyInMs / 1000);
 
-                if (seg.is_ready)
-                {
+                if (seg.is_ready){
                   transform = transform * seg.calibration_pose;
                   transforms.push_back(tf::StampedTransform(transform, frame_time, tf_ref_frame_id_, tracked_frame));
 //                  transform = tf::StampedTransform(flyer_transform, frame_time, tf_ref_frame_id_, tracked_frame);
 //                  tf_broadcaster_.sendTransform(transform);
 
-                  if(publish_tf_)
-                  {
+                  if(publish_tf_){
                     tf::transformStampedTFToMsg(transforms.back(), *pose_msg);
                     seg.pub.publish(pose_msg);
                   }
                 }
               }
-              else
-              {
+              else{
                 lock.unlock();
                 createSegment(subject_name, segment_name);
               }
             }
           }
-          else
-          {
+          else{
             if (cnt % 100 == 0)
               ROS_WARN_STREAM("" << subject_name <<" occluded, not publishing... " );
           }
         }
-        else
-        {
+        else{
           ROS_WARN("GetSegmentGlobalTranslation/Rotation failed (result = %s, %s), not publishing...",
               Adapt(trans.Result).c_str(), Adapt(quat.Result).c_str());
         }
       }
     }
 
-    if(broadcast_tf_)
-    {
+    if(broadcast_tf_){
       tf_broadcaster_.sendTransform(transforms);
     }
     cnt++;
   }
 
-  void process_markers(const ros::Time& frame_time, unsigned int vicon_frame_num)
-  {
-    if (marker_pub_.getNumSubscribers() > 0)
-    {
-      if (!marker_data_enabled)
-      {
+  void process_markers(const ros::Time& frame_time, unsigned int vicon_frame_num){
+    if (marker_pub_.getNumSubscribers() > 0){
+      if (!marker_data_enabled){
         vicon_client_.EnableMarkerData();
         ROS_ASSERT(vicon_client_.IsMarkerDataEnabled().Enabled);
         marker_data_enabled = true;
       }
-      if (!unlabeled_marker_data_enabled)
-      {
+      if (!unlabeled_marker_data_enabled){
         vicon_client_.EnableUnlabeledMarkerData();
         ROS_ASSERT(vicon_client_.IsUnlabeledMarkerDataEnabled().Enabled);
         unlabeled_marker_data_enabled = true;
@@ -562,15 +514,13 @@ private:
       // Count the number of subjects
       unsigned int SubjectCount = vicon_client_.GetSubjectCount().SubjectCount;
       // Get labeled markers
-      for (unsigned int SubjectIndex = 0; SubjectIndex < SubjectCount; ++SubjectIndex)
-      {
+      for (unsigned int SubjectIndex = 0; SubjectIndex < SubjectCount; ++SubjectIndex){
         std::string this_subject_name = vicon_client_.GetSubjectName(SubjectIndex).SubjectName;
         // Count the number of markers
         unsigned int num_subject_markers = vicon_client_.GetMarkerCount(this_subject_name).MarkerCount;
         n_markers += num_subject_markers;
         //std::cout << "    Markers (" << MarkerCount << "):" << std::endl;
-        for (unsigned int MarkerIndex = 0; MarkerIndex < num_subject_markers; ++MarkerIndex)
-        {
+        for (unsigned int MarkerIndex = 0; MarkerIndex < num_subject_markers; ++MarkerIndex){
           vicon_bridge::Marker this_marker;
           this_marker.marker_name = vicon_client_.GetMarkerName(this_subject_name, MarkerIndex).MarkerName;
           this_marker.subject_name = this_subject_name;
@@ -594,14 +544,12 @@ private:
       //ROS_INFO("# unlabeled markers: %d", UnlabeledMarkerCount);
       n_markers += UnlabeledMarkerCount;
       n_unlabeled_markers = UnlabeledMarkerCount;
-      for (unsigned int UnlabeledMarkerIndex = 0; UnlabeledMarkerIndex < UnlabeledMarkerCount; ++UnlabeledMarkerIndex)
-      {
+      for (unsigned int UnlabeledMarkerIndex = 0; UnlabeledMarkerIndex < UnlabeledMarkerCount; ++UnlabeledMarkerIndex){
         // Get the global marker translation
         Output_GetUnlabeledMarkerGlobalTranslation _Output_GetUnlabeledMarkerGlobalTranslation =
             vicon_client_.GetUnlabeledMarkerGlobalTranslation(UnlabeledMarkerIndex);
 
-        if (_Output_GetUnlabeledMarkerGlobalTranslation.Result == Result::Success)
-        {
+        if (_Output_GetUnlabeledMarkerGlobalTranslation.Result == Result::Success){
           vicon_bridge::Marker this_marker;
           this_marker.translation.x = _Output_GetUnlabeledMarkerGlobalTranslation.Translation[0];
           this_marker.translation.y = _Output_GetUnlabeledMarkerGlobalTranslation.Translation[1];
@@ -609,8 +557,7 @@ private:
           this_marker.occluded = false; // unlabeled markers can't be occluded
           markers_msg.markers.push_back(this_marker);
         }
-        else
-        {
+        else{
           ROS_WARN("GetUnlabeledMarkerGlobalTranslation failed (result = %s)",
               Adapt(_Output_GetUnlabeledMarkerGlobalTranslation.Result).c_str());
         }
@@ -619,8 +566,7 @@ private:
     }
   }
 
-  bool grabPoseCallback(vicon_bridge::viconGrabPose::Request& req, vicon_bridge::viconGrabPose::Response& resp)
-  {
+  bool grabPoseCallback(vicon_bridge::viconGrabPose::Request& req, vicon_bridge::viconGrabPose::Response& resp){
     ROS_INFO("Got request for a VICON pose");
     tf::TransformListener tf_listener;
     tf::StampedTransform transform;
@@ -635,20 +581,16 @@ private:
     ros::Duration timeout(0.1);
     ros::Duration poll_period(1.0 / 240.0);
 
-    for (int k = 0; k < N; k++)
-    {
-      try
-      {
-        if (tf_listener.waitForTransform(tf_ref_frame_id_, tracked_segment, ros::Time::now(), timeout, poll_period))
-        {
+    for (int k = 0; k < N; k++){
+      try{
+        if (tf_listener.waitForTransform(tf_ref_frame_id_, tracked_segment, ros::Time::now(), timeout, poll_period)){
           tf_listener.lookupTransform(tf_ref_frame_id_, tracked_segment, ros::Time(0), transform);
           orientation += transform.getRotation();
           position += transform.getOrigin();
           n_success++;
         }
       }
-      catch (tf::TransformException ex)
-      {
+      catch (tf::TransformException ex){
         ROS_ERROR("%s", ex.what());
         //    		resp.success = false;
         //    		return false; // TODO: should we really bail here, or just try again?
@@ -676,16 +618,14 @@ private:
   }
 
   bool calibrateSegmentCallback(vicon_bridge::viconCalibrateSegment::Request& req,
-                                vicon_bridge::viconCalibrateSegment::Response& resp)
-  {
+                                vicon_bridge::viconCalibrateSegment::Response& resp){
 
     std::string full_name = req.subject_name + "/" + req.segment_name;
     ROS_INFO("trying to calibrate %s", full_name.c_str());
 
     SegmentMap::iterator seg_it = segment_publishers_.find(full_name);
 
-    if (seg_it == segment_publishers_.end())
-    {
+    if (seg_it == segment_publishers_.end()){
       ROS_WARN("frame %s not found --> not calibrating", full_name.c_str());
       resp.success = false;
       resp.status = "segment " + full_name + " not found";
@@ -694,8 +634,7 @@ private:
 
     SegmentPublisher & seg = seg_it->second;
 
-    if (seg.calibrated)
-    {
+    if (seg.calibrated){
       ROS_INFO("%s already calibrated, deleting old calibration", full_name.c_str());
       seg.calibration_pose.setIdentity();
     }
@@ -709,8 +648,7 @@ private:
 
     bool ret = grabPoseCallback(grab_req, grab_resp);
 
-    if (!ret)
-    {
+    if (!ret){
       resp.success = false;
       resp.status = "error while grabbing pose from Vicon";
       return false;
@@ -745,8 +683,7 @@ private:
   }
 };
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
   ros::init(argc, argv, "vicon");
 
   ros::AsyncSpinner aspin(1);

@@ -1,4 +1,4 @@
-# uav_localization
+# ![image](https://github.com/HuaYuXiao/uav_localization/assets/117464811/f6645056-5279-414b-a0fc-fb93702229fc) UAV localization
 
 ![HitCount](https://img.shields.io/endpoint?url=https%3A%2F%2Fhits.dwyl.com%2FHuaYuXiao%2Fuav_localization.json%3Fcolor%3Dpink)
 ![Static Badge](https://img.shields.io/badge/ROS-melodic-22314E?logo=ros)
@@ -8,7 +8,19 @@
 
 This is a driver providing data from VICON motion capture systems. It is based on the vicon_mocap package from the starmac stacks. Additionally, it can handle multiple subjects / segments and allows to calibrate an origin of the vehicle(s) as this is somehow tedious with the VICON Tracker.
 
-QUICK START
+## 如何使用
+
+### 编译安装
+
+```bash
+cd ~/Prometheus
+```
+
+```bash
+catkin_make install -j1 -l1 --source Modules/control --build build/control
+```
+
+### QUICK START
 
 ```bash
 roslaunch uav_localization vicon.launch
@@ -17,7 +29,7 @@ roslaunch uav_localization vicon.launch
 You may need to set the "datastream_hostport" parameter to your vicon computer's ip/hostname
 
 OPERATION
-The vicon_bridge node initiates a connection with the Vicon data source (e.g. Nexus or Tracker) via the DataStream API. The parameter ~datastream_hostport should be set to the IP address and port (joined with a colon) of the DataStream server machine, e.g. 192.168.28.58:801 (801 is the default port). The parameter ~stream_mode is used for the call to the DataStream SetStreamMode method; valid values are "ServerPush", "ClientPull". 
+The vicon_bridge node initiates a connection with the Vicon data source (e.g. Nexus or Tracker) via the DataStream API. The parameter ~datastream_hostport should be set to the IP address and port (joined with a colon) of the DataStream server machine, e.g. `192.168.1.52:801` (801 is the default port). The parameter ~stream_mode is used for the call to the DataStream SetStreamMode method; valid values are "ServerPush", "ClientPull". 
 
 All available subjects and segments are recognized automatically and published as tf transform and geometry_msgs::TransformStamped
 
@@ -67,6 +79,11 @@ Parameters
 - ~/<subject_name>/segment_name/zero_pose/position/y
 - ~/<subject_name>/segment_name/zero_pose/position/z
   position of the pose at origin of the corresponding vehicle
+
+
+Reference:
+- ⭐ https://github.com/amov-lab/Prometheus/blob/main/Experiment/launch/prometheus_experiment.launch
+
 
 
 ## 谢辞

@@ -2,13 +2,11 @@
   <name>uav_localization</name>
   <version>1.0.0</version>
   <description>
-
      This is a driver providing data from VICON motion capture systems. It is based on the vicon_mocap package from the starmac stacks. 
      Additionally, it can handle multiple subjects / segments and allows to calibrate an origin of the vehicle(s) as this is somehow tedious with the VICON Tracker.
-
   </description>
-  <maintainer email="markus.achtelik@mavt.ethz.ch">Markus Achtelik</maintainer>
-  <license>BSD, based on vicon_mocap from the starmac stacks </license>
+  <maintainer email="hyx020222@gmail.com">Eason Hua</maintainer>
+  <license>MIT</license>
   <url>http://ros.org/wiki/vicon_bridge</url>
 
   <buildtool_depend>catkin</buildtool_depend>
@@ -27,5 +25,3 @@
   <run_depend>roscpp</run_depend>
   <run_depend>tf</run_depend>
 </package>
-
-

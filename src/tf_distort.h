@@ -60,13 +60,11 @@ namespace tf_distort{
 typedef dynamic_reconfigure::Server<vicon_bridge::tf_distortConfig> ReconfServer;
 typedef vicon_bridge::tf_distortConfig Config;
 
-class DelayedTransform
-{
+class DelayedTransform{
 public:
   DelayedTransform();
   DelayedTransform(const tf::StampedTransform & _transform, const ros::Time & _time) :
-    transform(_transform), time_to_publish(_time)
-  {
+    transform(_transform), time_to_publish(_time){
   }
   ;
   tf::StampedTransform transform;
@@ -78,38 +76,32 @@ typedef std::queue<DelayedTransform> DelayedTransformQueue;
 const double rand_max_ = RAND_MAX;
 void whiteGaussianNoise(double * n1, double * n2 = NULL);
 
-class RandomWalk
-{
+class RandomWalk{
 private:
   double x_;
   double sigma_gm_;
   double tau_;
 public:
   RandomWalk() :
-    x_(0), sigma_gm_(0), tau_(0)
-  {
+    x_(0), sigma_gm_(0), tau_(0){
     //srand(time(NULL));
   }
-  void configure(const double & sigma_gm, const double & tau)
-  {
+  void configure(const double & sigma_gm, const double & tau){
     sigma_gm_ = sigma_gm;
     tau_ = tau;
   }
-  double update(const double & dt)
-  {
+  double update(const double & dt){
     double n;
     whiteGaussianNoise(&n);
     x_ = n * sqrt(1.0 - exp(-dt / tau_)) + x_ * exp(-dt / tau_);
     return x_;
   }
-  double get()
-  {
+  double get(){
     return x_;
   }
 };
 
-class TfDistort
-{
+class TfDistort{
 private:
 
   ReconfServer* reconf_srv_;
