@@ -2,8 +2,8 @@
 
 ![HitCount](https://img.shields.io/endpoint?url=https%3A%2F%2Fhits.dwyl.com%2FHuaYuXiao%2Fuav_localization.json%3Fcolor%3Dpink)
 ![Static Badge](https://img.shields.io/badge/ROS-melodic-22314E?logo=ros)
-![Static Badge](https://img.shields.io/badge/Ubuntu-18.04.6-E95420?logo=ubuntu)
 ![Static Badge](https://img.shields.io/badge/C%2B%2B-14-00599C?logo=cplusplus)
+![Static Badge](https://img.shields.io/badge/Ubuntu-18.04.6-E95420?logo=ubuntu)
 ![Static Badge](https://img.shields.io/badge/NVIDIA-Jetson_Nano-76B900?LOGO=nvidia)
 
 This is a driver providing data from VICON motion capture systems. It is based on the vicon_mocap package from the starmac stacks. Additionally, it can handle multiple subjects / segments and allows to calibrate an origin of the vehicle(s) as this is somehow tedious with the VICON Tracker.
@@ -16,9 +16,11 @@ This is a driver providing data from VICON motion capture systems. It is based o
 cd ~/Prometheus
 ```
 
+<!--
 ```bash
 catkin_make install -j1 -l1 --source Modules/control --build build/control
 ```
+-->
 
 ### QUICK START
 
@@ -86,7 +88,7 @@ Reference:
 
 
 
-## 谢辞
+## 致谢
 - 感谢**陈亮名**副教授的指导😊！
 - 感谢**哈工深MASLAB**提供的场地设备支持😊！
-- 感谢**岳江源**、**李奥淇**、**马健斌**、**崔宝艺**、**方尧**、**苏硕**、**李慕琦**、**余晨昕**、**李光阳**等师兄们的技术支持😊！
+- 感谢**岳江源**、**方尧**、**苏硕**、**田凯欣**等师兄们的技术支持😊！
